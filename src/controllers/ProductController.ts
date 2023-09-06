@@ -25,4 +25,20 @@ productController.post("/product", async (req: Request, res: Response) => {
   }
 });
 
+productController.get("/products", async (req: Request, res: Response) => {
+  try {
+    const getProducts = await prisma.product.findMany({
+      select: {
+        id: true,
+        name: true,
+        image: true,
+      },
+    });
+    res.status(200).json(getProducts);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "erro ao pegar os produtos" });
+  }
+});
+
 export default productController;
