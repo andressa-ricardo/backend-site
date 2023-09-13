@@ -1,6 +1,7 @@
 import { Router, Request, Response } from "express";
 import { compare, hash } from "bcrypt";
 import { prisma } from "../models/prisma/Client";
+import jwt from "jsonwebtoken";
 
 const userController = Router();
 
@@ -37,6 +38,19 @@ userController.post("/register", async (req: Request, res: Response) => {
   }
 });
 
+userController.post("/verify", async (req: Request, res: Response) => {
+  const token = req.headers.authorization;
+  if(!token){
+    return res.status(401).send()
+  }
+  try{
+    jwt.verify(token, process.env.SECRET!)
+    return res.status(204).send()
+  } catch {
+    return res.status(401).send()
+  }
+})
+
 userController.post("/login", async (req: Request, res: Response) => {
   const { email, password } = req.body;
   if (!email || !password) {
@@ -60,8 +74,11 @@ userController.post("/login", async (req: Request, res: Response) => {
       return res.status(401).json({ error: "senha incorreta." });
     }
 
+    const token = jwt.sign({ userId: user.id }, process.env.SECRET as string, {
+      expiresIn: "1h",
+    });
 
-    res.status(200).json({ message: "login bem-sucedido!", user });
+    res.status(200).json({ message: "login bem-sucedido!", token });
   } catch (e) {
     console.error(e);
     res.status(500).json({ error: "erro ao autenticar o usuário." });
