@@ -1,7 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken"
+import jwt from "jsonwebtoken";
 
-export default function authMiddlleware(req: Request, res: Response, next: NextFunction) {
+export default function authMiddlleware(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
   if (!req.headers.authorization) {
     return res.sendStatus(401);
   }
@@ -15,5 +19,5 @@ export default function authMiddlleware(req: Request, res: Response, next: NextF
   } catch {
     return res.sendStatus(401);
   }
-  next()
+  next();
 }
